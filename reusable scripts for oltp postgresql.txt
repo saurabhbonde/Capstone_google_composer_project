@@ -1,0 +1,112 @@
+
+# create instance
+
+
+gcloud sql instances create oltp-schema1 \
+--database-version=POSTGRES_14 \
+--cpu=2 \
+--memory=7680MB \
+--storage-type HDD \
+--storage-size=100GB
+
+
+#setting password for instance created 
+
+gcloud sql users set-password postgres \
+--instance=oltp-schema1 \
+--password=7798748934
+
+# Create a database in oltp-schema1 instance we have created
+
+create database oltp
+
+# creating table in oltp database
+
+1. customer_master :
+
+create table customer_master(
+customerid int,
+Name varchar(100),
+address varchar(255),
+city varchar(25),
+state varchar(25),
+pincode int,
+update_timestamp timestamp
+);
+
+ALTER TABLE customer_master
+ADD CONSTRAINT cust_master_pk PRIMARY KEY (customerid);
+
+2. product_master:
+
+create table product_master(
+productid int,
+productcode varchar(10),
+productname varchar(45),
+sku varchar(10),
+rate int,
+isactive BOOLEAN
+);
+
+ALTER TABLE product_master
+ADD CONSTRAINT prod_master_PK PRIMARY KEY (productid);
+
+
+3.order_details
+
+create table order_details(
+orderid int,
+customerid int,
+order_status_update_timestamp timestamp,
+order_status varchar(20)
+);
+
+ALTER TABLE order_details
+ADD CONSTRAINT ord_detail_PK PRIMARY KEY (orderid,order_status_update_timestamp);
+
+ALTER TABLE order_details
+ADD CONSTRAINT ord_detail_FK FOREIGN KEY (customerid) REFERENCES customer_master(customerid);
+
+
+4. order_items
+
+create table order_items(
+orderid int,
+productid int,
+quantity int
+);
+
+
+ALTER TABLE order_items
+ADD CONSTRAINT ord_item_PK PRIMARY KEY (orderid,productid,quantity);
+
+ALTER TABLE order_items
+ADD CONSTRAINT ord_items_FK FOREIGN KEY (productid) REFERENCES product_master(productid);
+------------------------------------
+
+oltp schema
+
+ Schema |      Name       | Type  |  Owner
+--------+-----------------+-------+----------
+ public | customer_master | table | postgres
+ public | order_details   | table | postgres
+ public | order_items     | table | postgres
+ public | product_master  | table | postgres
+
+
+# copying file from gcp bucket csv to postgre sql
+customer_master table
+
+gcloud sql import csv oltp-schema1 gs://data-to-postgresql/customer_master.csv \
+> --database=oltp \
+> --table=customer_master
+
+Product_master_table
+
+gcloud sql import csv oltp-schema1 gs://data-to-postgresql/product_master.csv --database=oltp --table=product_master
+
+
+#order items table
+
+ma1].
+saurabh_090395@cloudshell:~ (access-5-352711)$ gcloud sql import csv oltp-schema1 gs://data-to-postgresql/order_items.csv --database=oltp --table=order_items

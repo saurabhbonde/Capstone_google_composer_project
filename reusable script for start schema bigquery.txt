@@ -1,0 +1,79 @@
+https://cloud.google.com/bigquery/docs/datasets
+
+https://cloud.google.com/bigquery/docs/reference/bq-cli-reference
+
+#create-datasets
+
+bq mk starschema
+
+#create table
+
+CREATE TABLE starschema.dim_order(
+orderid int ,
+order_status_update_timestamp timestamp NOT NULL,
+order_status string
+)
+
+# fact daily orders
+
+CREATE TABLE starschema.fact_daily_orders(
+customerid int not null ,
+orderid int not null,
+order_received_timestamp timestamp NOT NULL,
+order_delivery_timestamp timestamp,
+pincode int,
+order_amount int,
+item_count int,
+order_delivery_time_seconds timestamp,
+)
+
+# dim_customer
+
+CREATE TABLE starschema.dim_customer(
+customerid int not null ,
+name string not null,
+address_id int,
+start_date date,
+end_date date
+)
+
+#dim_address
+
+CREATE TABLE starschema.dim_address(
+addressid int not null ,
+address string not null,
+city string,
+state string,
+pincode int
+)
+
+# dim_product
+
+CREATE TABLE starschema.dim_product(
+productid int not null ,
+productcode string not null,
+productname string,
+sku int,
+rate int,
+isactive bool,
+start_date date,
+end_date date
+)
+
+#f_order_Details
+
+CREATE TABLE starschema.f_order_details(
+  orderid int not null,
+  order_delivery_timestamp timestamp,
+  productid int,
+  quantity int not null
+
+)
+
+#referaence
+
+https://github.com/ael-computas/gcp_cloudsql_airflow_bigquery
+
+https://github.com/GoogleCloudPlatform/cloud-composer-mssql-dataflow-bigquery
+
+https://github.com/GoogleCloudPlatform/professional-services/tree/main/examples/cloud-composer-examples
